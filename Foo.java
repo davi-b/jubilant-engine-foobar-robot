@@ -26,11 +26,17 @@ public class Foo extends Robot
 			return newHeading;
 		}
 		
-		public double x, y;		
-		public PredictRobotEvent(ScannedRobotEvent e, double dt, double Heading) {
+		private double getBulletVelocity(double firepower)
+		{
+			return 20 - 3 * firepower;
+		}
+		
+		private double x, y;
+		public PredictRobotEvent(ScannedRobotEvent e, double firepower, double Heading) {
 			double dxdt, dydt, angle;
-			double nx, ny;
+			double nx, ny, dt;
 			
+			dt = e.getDistance() / getBulletVelocity(1);
 			newHeading = e.getHeading();
 			
 			angle = Math.toRadians(e.getBearing());
@@ -55,11 +61,6 @@ public class Foo extends Robot
 			out.println("dx/dt:" + dxdt + " dy/dt:" + dydt);
 		}
 	}
-
-	public getBulletVelocity(double firepower)
-	{
-		return 20 - 3 * firepower;
-	}	
 
 	public class Target {
 		String name;
@@ -103,7 +104,7 @@ public class Foo extends Robot
 		if (e.getName() != target.name)
 			return;
 
-		PredictRobotEvent pe = new PredictRobotEvent(e, 20, getHeading());
+		PredictRobotEvent pe = new PredictRobotEvent(e, 1, getHeading());
 					
 		target.counter++;
 		target.distance = e.getDistance();
