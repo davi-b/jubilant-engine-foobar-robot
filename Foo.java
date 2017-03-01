@@ -4,14 +4,8 @@ import robocode.*;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
 
-/**
- * Foo - a robot by (your name here)
- */
 public class Foo extends Robot
 {
-	/**
-	 * run: Foo's default behavior
-	 */	
 	public class Target {
 		double x;
 		double y;
@@ -22,14 +16,10 @@ public class Foo extends Robot
 	};
 	Target target;
 	public void run() {
-		// Initialization of the robot should be put here
-
-		// After trying out your robot, try uncommenting the import at the top,
-		// and the next line:
 
 		// setColors(Color.red,Color.blue,Color.green); // body,gun,radar
 		setAdjustRadarForGunTurn(true);
-		// Robot main loop
+
 		while(true) {
 			if (target == null) {
 				turnRadarRight(90);
@@ -51,9 +41,7 @@ public class Foo extends Robot
 	 * onScannedRobot: What to do when you see another robot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
-			
-		//out.println("See:" + e.getName());
-		
+					
 		if (target == null) {
 			target = new Target();
 			target.name = e.getName();
@@ -65,13 +53,11 @@ public class Foo extends Robot
 		target.counter++;
 		target.distance = e.getDistance();
 		
-		// Replace the next line with any behavior you would like
 		double diff = 	getGunHeading() - getHeading();
 		double adjust = (e.getBearing() - diff + 540) % 360 - 180;
 		double diff_radar = getRadarHeading() - getHeading();
 		double adjust_radar = (e.getBearing() - diff_radar + 540) % 360 - 180;
 		target.adjust = adjust_radar;
-		//out.println("Radar adjust:" + adjust_radar);
 				
 		double angle = Math.toRadians(e.getHeading() + getHeading());
 		target.x = e.getDistance() * Math.cos(angle);
@@ -80,38 +66,20 @@ public class Foo extends Robot
 		//out.println("x:" + target.x + " y:" + target.y);
 		//out.println("my x:" + getX() + " my y:" + getY());
 
-
-		//out.println("Ajudst: " + adjust);
 		if (Math.abs(adjust) > 0.01) {
-			//out.println("Turn adjust:" + adjust);
 			turnGunRight(adjust);
-		}else{
-			//out.println("Skip:" + adjust);
 		}
 
-		//out.println("Gun:" + getGunHeat());		
-		if (getGunHeat() != 0) {
-			//out.println("Gun:" + getGunHeat());
-		}else{
-			//out.println("Fire Attempt!");
+		if (getGunHeat() == 0) {
 			fire(1);
-			//out.println("Fire!");
 		}
 	}
 
-	/**
-	 * onHitByBullet: What to do when you're hit by a bullet
-	 */
 	public void onHitByBullet(HitByBulletEvent e) {
-		// Replace the next line with any behavior you would like
 		//back(10);
 	}
 	
-	/**
-	 * onHitWall: What to do when you hit a wall
-	 */
 	public void onHitWall(HitWallEvent e) {
-		// Replace the next line with any behavior you would like
 		//back(20);
 	}	
 }
