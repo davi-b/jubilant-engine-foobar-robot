@@ -36,7 +36,6 @@ public class Foo extends Robot
 			double dxdt, dydt, angle;
 			double nx, ny, dt;
 			
-			dt = e.getDistance() / getBulletVelocity(1);
 			newHeading = e.getHeading();
 			
 			angle = Math.toRadians(e.getBearing());
@@ -48,17 +47,21 @@ public class Foo extends Robot
 			dxdt = Math.sin(Math.toRadians(head2)) * e.getVelocity();
 			dydt = Math.cos(Math.toRadians(head2)) * e.getVelocity();
 
+			double a = Math.pow(dxdt, 2) + Math.pow(dydt, 2) - Math.pow(getBulletVelocity(firepower), 2);
+			double b = 2 * (x * dxdt + y * dydt);
+			double c = Math.pow(x, 2) + Math.pow(y, 2);
+
+			if ( a > 0)
+				dt = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
+			else
+				dt = (-b - Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
+
 			ny = y + dydt * dt;
 			nx = x + dxdt * dt;
 			
 			double newAngle = Math.atan2(nx, ny);
 			newBearing = Math.toDegrees(newAngle);
 			newDistance = Math.hypot(ny, nx);
-
-			out.println("angle:" + getBearing() + " new angle:" + e.getBearing());
-			//out.println("x:" + x + " y:" + y);
-			//out.println("new x:" + nx + " new y:" + ny);
-			out.println("dx/dt:" + dxdt + " dy/dt:" + dydt);
 		}
 	}
 
