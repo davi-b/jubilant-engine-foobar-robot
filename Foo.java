@@ -6,9 +6,62 @@ import robocode.*;
 
 public class Foo extends Robot
 {
+	public class PredictRobotEvent {
+
+		double newDistance;
+		public double getDistance()
+		{
+			return newDistance;
+		}
+		
+		double newBearing;
+		public double getBearing()
+		{
+			return newBearing;
+		}
+
+		double newHeading;
+		public double getHeading()
+		{
+			return newHeading;
+		}
+		
+		public double x, y;		
+		public PredictRobotEvent(ScannedRobotEvent e, double dt, double Heading) {
+			double dxdt, dydt, angle;
+			double nx, ny;
+			
+			newHeading = e.getHeading();
+			
+			angle = Math.toRadians(e.getBearing());
+						
+			y = e.getDistance() * Math.cos(angle);
+			x = e.getDistance() * Math.sin(angle);
+			
+			double head2 = e.getHeading() - Heading;
+			dxdt = Math.sin(Math.toRadians(head2)) * e.getVelocity();
+			dydt = Math.cos(Math.toRadians(head2)) * e.getVelocity();
+
+			ny = y + dydt * dt;
+			nx = x + dxdt * dt;
+			
+			double newAngle = Math.atan2(nx, ny);
+			newBearing = Math.toDegrees(newAngle);
+			newDistance = Math.hypot(ny, nx);
+
+			out.println("angle:" + getBearing() + " new angle:" + e.getBearing());
+			//out.println("x:" + x + " y:" + y);
+			//out.println("new x:" + nx + " new y:" + ny);
+			out.println("dx/dt:" + dxdt + " dy/dt:" + dydt);
+		}
+	}
+
+	public getBulletVelocity(double firepower)
+	{
+		return 20 - 3 * firepower;
+	}	
+
 	public class Target {
-		double x;
-		double y;
 		String name;
 		int counter;
 		double adjust;
@@ -19,16 +72,16 @@ public class Foo extends Robot
 
 		// setColors(Color.red,Color.blue,Color.green); // body,gun,radar
 		setAdjustRadarForGunTurn(true);
-
+		ahead(10);
 		while(true) {
 			if (target == null) {
-				turnRadarRight(90);
+				turnRadarLeft(90);
 			}else{
 				double aperture;
 				aperture = 5 * (getBattleFieldWidth() / target.distance);
 				target.counter = 0;
-				turnRadarRight(aperture + target.adjust);
 				turnRadarLeft(aperture - target.adjust);
+				turnRadarRight(aperture + target.adjust);
 				if (target.counter == 0) {
 					out.println("Lost Target.");
 					target = null;
@@ -49,25 +102,27 @@ public class Foo extends Robot
 		
 		if (e.getName() != target.name)
 			return;
-			
+
+		PredictRobotEvent pe = new PredictRobotEvent(e, 20, getHeading());
+					
 		target.counter++;
 		target.distance = e.getDistance();
 		
-		double diff = 	getGunHeading() - getHeading();
-		double adjust = (e.getBearing() - diff + 540) % 360 - 180;
+		double diff = getGunHeading() - getHeading();
+		double adjust = (diff - e.getBearing() + 540) % 360 - 180;
+		double padjust = (diff - pe.getBearing() + 540) % 360 - 180;		
+		
 		double diff_radar = getRadarHeading() - getHeading();
 		double adjust_radar = (e.getBearing() - diff_radar + 540) % 360 - 180;
 		target.adjust = adjust_radar;
-				
-		double angle = Math.toRadians(e.getHeading() + getHeading());
-		target.x = e.getDistance() * Math.cos(angle);
-		target.y = e.getDistance() * Math.sin(angle);
 
-		//out.println("x:" + target.x + " y:" + target.y);
+		//target.x = pe.x;
+		//target.y = pe.y;
 		//out.println("my x:" + getX() + " my y:" + getY());
 
+		out.println("Adjust:" + adjust + " pAdjust:" + padjust);
 		if (Math.abs(adjust) > 0.01) {
-			turnGunRight(adjust);
+			turnGunLeft(padjust);
 		}
 
 		if (getGunHeat() == 0) {
