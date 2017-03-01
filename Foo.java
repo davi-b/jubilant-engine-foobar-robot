@@ -17,6 +17,8 @@ public class Foo extends Robot
 		double y;
 		String name;
 		int counter;
+		double adjust;
+		double distance;
 	};
 	Target target;
 	public void run() {
@@ -30,11 +32,13 @@ public class Foo extends Robot
 		// Robot main loop
 		while(true) {
 			if (target == null) {
-				turnRadarRight(100);
+				turnRadarRight(90);
 			}else{
+				double aperture;
+				aperture = 5 * (getBattleFieldWidth() / target.distance);
 				target.counter = 0;
-				turnRadarRight(100);
-				turnRadarRight(-100);
+				turnRadarRight(aperture + target.adjust);
+				turnRadarLeft(aperture - target.adjust);
 				if (target.counter == 0) {
 					out.println("Lost Target.");
 					target = null;
@@ -48,52 +52,50 @@ public class Foo extends Robot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 			
-		out.println("See:" + e.getName());
+		//out.println("See:" + e.getName());
 		
 		if (target == null) {
 			target = new Target();
 			target.name = e.getName();
-			
-			double diff_radar = getRadarHeading() - getHeading();
-			double adjust_radar = (e.getBearing() - diff_radar + 540) % 360 - 180;
-			out.println("Radar Ajudst: " + adjust_radar);		
-			if (Math.abs(adjust_radar) > 0.01) {
-				turnRadarRight(adjust_radar);
-			}
 		}
 		
 		if (e.getName() != target.name)
 			return;
 			
 		target.counter++;
+		target.distance = e.getDistance();
 		
 		// Replace the next line with any behavior you would like
 		double diff = 	getGunHeading() - getHeading();
 		double adjust = (e.getBearing() - diff + 540) % 360 - 180;
-		
+		double diff_radar = getRadarHeading() - getHeading();
+		double adjust_radar = (e.getBearing() - diff_radar + 540) % 360 - 180;
+		target.adjust = adjust_radar;
+		//out.println("Radar adjust:" + adjust_radar);
+				
 		double angle = Math.toRadians(e.getHeading() + getHeading());
 		target.x = e.getDistance() * Math.cos(angle);
 		target.y = e.getDistance() * Math.sin(angle);
 
-		out.println("x:" + target.x + " y:" + target.y);
+		//out.println("x:" + target.x + " y:" + target.y);
 		//out.println("my x:" + getX() + " my y:" + getY());
 
 
-		out.println("Ajudst: " + adjust);
+		//out.println("Ajudst: " + adjust);
 		if (Math.abs(adjust) > 0.01) {
-			out.println("Turn adjust:" + adjust);
+			//out.println("Turn adjust:" + adjust);
 			turnGunRight(adjust);
 		}else{
-			out.println("Skip:" + adjust);
+			//out.println("Skip:" + adjust);
 		}
 
-		out.println("Gun:" + getGunHeat());		
+		//out.println("Gun:" + getGunHeat());		
 		if (getGunHeat() != 0) {
-			out.println("Gun:" + getGunHeat());
+			//out.println("Gun:" + getGunHeat());
 		}else{
-			out.println("Fire Attempt!");
+			//out.println("Fire Attempt!");
 			fire(1);
-			out.println("Fire!");
+			//out.println("Fire!");
 		}
 	}
 
@@ -102,7 +104,7 @@ public class Foo extends Robot
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
 		// Replace the next line with any behavior you would like
-		back(10);
+		//back(10);
 	}
 	
 	/**
@@ -110,6 +112,6 @@ public class Foo extends Robot
 	 */
 	public void onHitWall(HitWallEvent e) {
 		// Replace the next line with any behavior you would like
-		back(20);
+		//back(20);
 	}	
 }
