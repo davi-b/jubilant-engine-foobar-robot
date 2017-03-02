@@ -1,4 +1,5 @@
 Foo$State.class
 Foo$Target.class
 Foo$TargetInfo.class
+Foo$PredictRobotEvent.class
 Foo.class

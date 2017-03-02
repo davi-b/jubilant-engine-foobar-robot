@@ -26,10 +26,10 @@ public class Foo extends Robot
 			return newHeading;
 		}
 		
-		boolean insideOfBattleField;
-		public boolean getInsideOfBattleField()
+		boolean hitPrediction;
+		public boolean getHitPrediction()
 		{
-			return insideOfBattleField;
+			return hitPrediction;
 		}
 		
 		private double getBulletVelocity(double firepower)
@@ -74,7 +74,8 @@ public class Foo extends Robot
 			y = newDistance * Math.cos(angle) + robot.getY();
 			x = newDistance * Math.sin(angle) + robot.getX();
 			
-			insideOfBattleField = x > 0 && y > 0 && x < robot.getBattleFieldWidth() && y < getBattleFieldHeight();
+			hitPrediction = x > 0 && y > 0 && x < robot.getBattleFieldWidth() && y < getBattleFieldHeight();
+			hitPrediction &= e.getVelocity() == 8;
 		}
 	}
 
@@ -120,7 +121,8 @@ public class Foo extends Robot
 		if (e.getName() != target.name)
 			return;
 
-		PredictRobotEvent pe = new PredictRobotEvent(e, this, 1);
+		double fire_power = 3;
+		PredictRobotEvent pe = new PredictRobotEvent(e, this, fire_power);
 					
 		target.counter++;
 		target.distance = e.getDistance();
@@ -129,18 +131,21 @@ public class Foo extends Robot
 		double adjust_radar = (e.getBearing() - diff_radar + 540) % 360 - 180;
 		target.adjust = adjust_radar;
 
-		if (pe.getInsideOfBattleField() == false)
-			return;
-
 		double diff = getGunHeading() - getHeading();
-		double adjust_gun = (diff - pe.getBearing() + 540) % 360 - 180;
+		double adjust_gun;
+		if (pe.getHitPrediction()) {
+			adjust_gun = (diff - pe.getBearing() + 540) % 360 - 180;
+		} else {
+			adjust_gun = (diff - e.getBearing() + 540) % 360 - 180;
+		}
+		
 		
 		if (Math.abs(adjust_gun) > 0.01) {
 			turnGunLeft(adjust_gun);
 		}
 
-		if (getGunHeat() == 0) {
-			fire(1);
+		if (getGunHeat() == 0 && pe.getHitPrediction() == true) {
+			fire(fire_power);
 		}
 	}
 
