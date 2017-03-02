@@ -76,6 +76,13 @@ public class Foo extends Robot
 			
 			hitPrediction = x > 0 && y > 0 && x < robot.getBattleFieldWidth() && y < getBattleFieldHeight();
 			hitPrediction &= e.getVelocity() == 8;
+			
+			//If the target can't run from the bullet we fire.
+			double error = dt * 8;
+			if (error < robot.getWidth() || error < robot.getHeight()) {
+				hitPrediction = true;
+			}
+			out.println("error:" + error);
 		}
 	}
 
@@ -121,7 +128,7 @@ public class Foo extends Robot
 		if (e.getName() != target.name)
 			return;
 
-		double fire_power = 3;
+		double fire_power = 1;
 		PredictRobotEvent pe = new PredictRobotEvent(e, this, fire_power);
 					
 		target.counter++;
