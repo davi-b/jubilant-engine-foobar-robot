@@ -104,6 +104,7 @@ public class Foo extends AdvancedRobot
 		newtarget_distance = Math.min(newtarget_distance, 400);
 		target_distance = newtarget_distance;
 	}
+	
 	Target target;
 	public void run() {
 
@@ -114,17 +115,19 @@ public class Foo extends AdvancedRobot
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
 		setAdjustGunForRobotTurn(true);
+		moveToCenter();
 		while(true) {
 			if (target == null) {
 				double distance_until_border;
 
 				turnRadarLeftRadians(Math.PI / 2);
-
+				
 				distance_until_border = getDistanceUntilBorder(getHeadingRadians(), direction);
 				if (distance_until_border < border_triger_direction) {
-					direction *= -1;
-					distance_until_border = getDistanceUntilBorder(getHeadingRadians(), direction);
-					setAhead(distance_until_border * direction);
+					if (atTheBoarder())
+					{
+						moveToCenter();
+					}
 					out.println("Avoid hit the border.");
 				}
 			}else{
@@ -185,6 +188,40 @@ public class Foo extends AdvancedRobot
 
 		return Math.min(Math.min(left, right), Math.min(top, botton));
 	}
+
+	double getDistanceUntilBorder() {
+		double top, botton, left, right;
+
+		top = getBattleFieldHeight() - getY();
+		botton = getY();
+		right = getBattleFieldWidth() - getX();
+		left = getX();
+
+		return Math.min(Math.min(left, right), Math.min(top, botton));
+	}
+	
+	boolean atTheBoarder() {
+		return getDistanceUntilBorder() < border_distance;
+	}
+	
+	void moveToCenter() {
+		double xc, yc;
+		xc = getBattleFieldWidth() / 2;
+		yc = getBattleFieldHeight() / 2;
+		
+		double angle = Math.atan2(xc - getX(), yc - getY());
+		angle = pi2npi(angle - getHeadingRadians());
+
+		if (Math.abs(angle) < Math.PI/2)
+		{
+			setTurnRightRadians(angle);
+			setAhead(border_distance);
+		}else{
+			angle = pi2npi(angle + Math.PI);
+			setTurnRightRadians(angle);
+			setAhead(-border_distance);
+		}
+	}
 	/**
 	 * onScannedRobot: What to do when you see another robot
 	 */
@@ -210,12 +247,19 @@ public class Foo extends AdvancedRobot
 		dist_adjust = direction * (Math.PI / 2) * (target.distance - target_distance) / getBattleFieldWidth();
 		//This adjust make the direction be always orthogonal to the target
 		angle = pi2npi(Math.PI / 2 - e.getBearingRadians() - dist_adjust);
-		setTurnLeftRadians(angle);
-		//Keep moving
 		double distance_until_border = getDistanceUntilBorder(angle + getHeadingRadians(), direction);
-		setAhead(distance_until_border * direction - border_distance);
-		if (distance_until_border < border_triger_direction)
+		if (distance_until_border < border_triger_direction) {
+			if (atTheBoarder())	{
+				moveToCenter();
+			}else{
+				setTurnLeftRadians(angle);
+				setAhead(border_triger_direction * direction);
+			}
 			direction *= -1;
+		}else{
+			setTurnLeftRadians(angle);
+			setAhead(border_triger_direction * direction);
+		}
 
 		//Radar compensation
 		double diff_radar = getRadarHeadingRadians() - getHeadingRadians();
