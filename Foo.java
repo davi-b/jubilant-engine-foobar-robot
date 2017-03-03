@@ -1,6 +1,7 @@
 package Bar;
 import robocode.*;
 import java.awt.Color;
+import java.util.Random;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
 
@@ -97,8 +98,17 @@ public class Foo extends AdvancedRobot
 		double adjust;
 		double distance;
 	};
+	void adjustTargetDistance(double factor) {
+		double newtarget_distance = target_distance * factor;
+		newtarget_distance = Math.max(newtarget_distance, 100);
+		newtarget_distance = Math.min(newtarget_distance, 400);
+		target_distance = newtarget_distance;
+	}
 	Target target;
 	public void run() {
+
+		Random rand_gen = new Random();
+		double prand;
 
 		setColors(Color.red,Color.blue,Color.green);
 		setAdjustRadarForGunTurn(true);
@@ -117,6 +127,14 @@ public class Foo extends AdvancedRobot
 					out.println("Lost Target.");
 					target = null;
 				}
+			}
+			prand = rand_gen.nextDouble();
+			if (prand < 0.05) {
+				direction *= -1;
+			} else if (prand < 0.01) {
+				adjustTargetDistance(1.3);
+			} else if (prand < 0.15) {
+				adjustTargetDistance(0.7);
 			}
 		}
 	}
@@ -211,16 +229,14 @@ public class Foo extends AdvancedRobot
 	}
 
 	public void onHitByBullet(HitByBulletEvent e) {
-		target_distance *= 1.2;
-		target_distance = Math.min(target_distance, 400);
+		adjustTargetDistance(1.2);
 	}
 	
-   public void onBulletHit(BulletHitEvent event) {
-		target_distance *= 0.8;
-		target_distance = Math.max(target_distance, 100);
-   }
-	
-	public void onHitWall(HitWallEvent e) {
+	public void onBulletHit(BulletHitEvent event) {
+		adjustTargetDistance(0.8);
+	}
 
-	}	
+	public void onHitWall(HitWallEvent e) {	
+		out.println("Hit wall.");
+	}
 }
