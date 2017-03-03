@@ -15,16 +15,16 @@ public class Foo extends AdvancedRobot
 			return newDistance;
 		}
 		
-		double newBearing;
-		public double getBearing()
+		double newBearingRadians;
+		public double getBearingRadians()
 		{
-			return newBearing;
+			return newBearingRadians;
 		}
 
-		double newHeading;
-		public double getHeading()
+		double newHeadingRadians;
+		public double getHeadingRadians()
 		{
-			return newHeading;
+			return newHeadingRadians;
 		}
 		
 		boolean hitPrediction;
@@ -43,16 +43,16 @@ public class Foo extends AdvancedRobot
 			double dxdt, dydt, angle;
 			double nx, ny, dt;
 			
-			newHeading = e.getHeading();
+			newHeadingRadians = e.getHeadingRadians();
 			
-			angle = Math.toRadians(e.getBearing());
+			angle = e.getBearingRadians();
 						
 			y = e.getDistance() * Math.cos(angle);
 			x = e.getDistance() * Math.sin(angle);
 			
-			double head2 = e.getHeading() - robot.getHeading();
-			dxdt = Math.sin(Math.toRadians(head2)) * e.getVelocity();
-			dydt = Math.cos(Math.toRadians(head2)) * e.getVelocity();
+			angle = e.getHeadingRadians() - robot.getHeadingRadians();
+			dxdt = Math.sin(angle) * e.getVelocity();
+			dydt = Math.cos(angle) * e.getVelocity();
 
 			double a = Math.pow(dxdt, 2) + Math.pow(dydt, 2) - Math.pow(getBulletVelocity(firepower), 2);
 			double b = 2 * (x * dxdt + y * dydt);
@@ -66,12 +66,11 @@ public class Foo extends AdvancedRobot
 			ny = y + dydt * dt;
 			nx = x + dxdt * dt;
 						
-			double newAngle = Math.atan2(nx, ny);
-			newBearing = Math.toDegrees(newAngle);
+			newBearingRadians = Math.atan2(nx, ny);
 			newDistance = Math.hypot(ny, nx);
 			
 			//Computes if the target will be outside of the BattleField
-			angle = Math.toRadians(newBearing + robot.getHeading());
+			angle = newBearingRadians + robot.getHeadingRadians();
 			y = newDistance * Math.cos(angle) + robot.getY();
 			x = newDistance * Math.sin(angle) + robot.getX();
 			
@@ -85,8 +84,8 @@ public class Foo extends AdvancedRobot
 				hitPrediction = true;
 			}
 
-			angle = Math.abs(Math.toRadians(getBearing() - e.getBearing())) / 2;
-			error = 2*e.getDistance()*Math.sin(angle);
+			angle = Math.abs(getBearingRadians() - e.getBearingRadians()) / 2;
+			error = 2 * e.getDistance() * Math.sin(angle);
 			if (error < robot.getWidth() || error < robot.getHeight()) {
 				hitPrediction = true;
 			}
@@ -109,13 +108,13 @@ public class Foo extends AdvancedRobot
 		ahead(10);
 		while(true) {
 			if (target == null) {
-				turnRadarLeft(90);
+				turnRadarLeftRadians(Math.PI / 2);
 			}else{
 				double aperture;
-				aperture = 5 * (getBattleFieldWidth() / target.distance);
+				aperture = (5 * Math.PI / 180) * (getBattleFieldWidth() / target.distance);
 				target.counter = 0;
-				turnRadarLeft(aperture - target.adjust);
-				turnRadarRight(aperture + target.adjust);
+				turnRadarLeftRadians(aperture - target.adjust);
+				turnRadarRightRadians(aperture + target.adjust);
 				if (target.counter == 0) {
 					out.println("Lost Target.");
 					target = null;
@@ -124,6 +123,9 @@ public class Foo extends AdvancedRobot
 		}
 	}
 
+	double pi2npi(double angle) {
+		return (angle + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
+	}
 	/**
 	 * onScannedRobot: What to do when you see another robot
 	 */
@@ -143,21 +145,23 @@ public class Foo extends AdvancedRobot
 		target.counter++;
 		target.distance = e.getDistance();
 	
-		double diff_radar = getRadarHeading() - getHeading();
-		double adjust_radar = (e.getBearing() - diff_radar + 540) % 360 - 180;
+		double diff_radar = getRadarHeadingRadians() - getHeadingRadians();
+		double adjust_radar = pi2npi(e.getBearingRadians() - diff_radar);
 		target.adjust = adjust_radar;
+		
+		out.println(Math.toDegrees(adjust_radar));
 
-		double diff = getGunHeading() - getHeading();
+		double diff = getGunHeadingRadians() - getHeadingRadians();
 		double adjust_gun;
 		if (pe.getHitPrediction()) {
-			adjust_gun = (diff - pe.getBearing() + 540) % 360 - 180;
+			adjust_gun = pi2npi(diff - pe.getBearingRadians());
 		} else {
-			adjust_gun = (diff - e.getBearing() + 540) % 360 - 180;
+			adjust_gun = pi2npi(diff - e.getBearingRadians());
 		}
 		
 		
 		if (Math.abs(adjust_gun) > 0.01) {
-			turnGunLeft(adjust_gun);
+			turnGunLeftRadians(adjust_gun);
 		}
 
 		if (getGunHeat() == 0 && pe.getHitPrediction() == true) {
