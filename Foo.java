@@ -184,6 +184,8 @@ public class Foo extends AdvancedRobot
 		//Keep moving
 		double distance_until_border = getDistanceUntilBorder(angle + getHeadingRadians(), direction);
 		setAhead(distance_until_border * direction - 100);
+		if (distance_until_border < 120)
+			direction *= -1;
 
 		//Radar compensation
 		double diff_radar = getRadarHeadingRadians() - getHeadingRadians();
@@ -223,7 +225,6 @@ public class Foo extends AdvancedRobot
 	}
 	
 	public void onHitWall(HitWallEvent e) {
-		//ortogonalAdjust *= -1;
-		direction *= -1;
+
 	}	
 }
