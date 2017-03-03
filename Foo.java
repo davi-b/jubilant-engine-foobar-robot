@@ -161,6 +161,11 @@ public class Foo extends Robot
 	    // Go somewhere pseudo random
 	    Random rand_gen = new Random();
 	    double prand = rand_gen.nextDouble();
+	    // turn right 25% of time
+	    // just because
+	    if (prand <= 0.25) {
+		turnRight(90);
+	    } 
 	    prand *= 2;
 	    prand -= 1;
 	    prand *= 90;
