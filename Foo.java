@@ -128,6 +128,33 @@ public class Foo extends AdvancedRobot
 	double pi2npi(double angle) {
 		return (angle + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
 	}
+
+	double getDistanceUntilBorder(double angle, double direction) {
+		double top, botton, left, right;
+
+		if (direction == -1)
+			angle += Math.PI;
+
+		top = (getBattleFieldHeight() - getY()) / Math.cos(angle);
+		botton = (0-getY()) / Math.cos(angle);
+
+		right = (getBattleFieldWidth() - getX()) / Math.sin(angle);
+		left = (0-getX()) / Math.sin(angle);
+
+		if (top < 0)
+			top = getBattleFieldHeight();
+
+		if (botton < 0)
+			botton = getBattleFieldHeight();
+
+		if (left < 0)
+			left = getBattleFieldWidth();
+
+		if (right < 0)
+			right = getBattleFieldWidth();
+
+		return Math.min(Math.min(left, right), Math.min(top, botton));
+	}
 	/**
 	 * onScannedRobot: What to do when you see another robot
 	 */
@@ -155,8 +182,9 @@ public class Foo extends AdvancedRobot
 		angle = pi2npi(Math.PI / 2 - e.getBearingRadians() - dist_adjust);
 		setTurnLeftRadians(angle);
 		//Keep moving
-		setAhead(100 * direction);
-	
+		double distance_until_border = getDistanceUntilBorder(angle + getHeadingRadians(), direction);
+		setAhead(distance_until_border * direction - 100);
+
 		//Radar compensation
 		double diff_radar = getRadarHeadingRadians() - getHeadingRadians();
 		double adjust_radar = pi2npi(e.getBearingRadians() - diff_radar);
