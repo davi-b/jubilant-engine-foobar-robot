@@ -1,6 +1,5 @@
 package Bar;
 import robocode.*;
-import java.util.Random;
 import java.awt.Color;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
@@ -124,6 +123,9 @@ public class Foo extends AdvancedRobot
 	
 	double ortogonalAdjust = Math.PI / 2;
 	double direction = 1;
+	double border_distance = 100;
+	double target_distance = 300;
+	double border_triger_direction = 120;
 
 	double pi2npi(double angle) {
 		return (angle + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
@@ -177,14 +179,14 @@ public class Foo extends AdvancedRobot
 		//Tracking functions
 		double dist_adjust, angle;
 		//This adjust is between 0 and 90 degrees to get close the target
-		dist_adjust = direction * (Math.PI / 2) * (target.distance - 100) / getBattleFieldWidth();
+		dist_adjust = direction * (Math.PI / 2) * (target.distance - target_distance) / getBattleFieldWidth();
 		//This adjust make the direction be always orthogonal to the target
 		angle = pi2npi(Math.PI / 2 - e.getBearingRadians() - dist_adjust);
 		setTurnLeftRadians(angle);
 		//Keep moving
 		double distance_until_border = getDistanceUntilBorder(angle + getHeadingRadians(), direction);
-		setAhead(distance_until_border * direction - 100);
-		if (distance_until_border < 120)
+		setAhead(distance_until_border * direction - border_distance);
+		if (distance_until_border < border_triger_direction)
 			direction *= -1;
 
 		//Radar compensation
@@ -209,20 +211,14 @@ public class Foo extends AdvancedRobot
 	}
 
 	public void onHitByBullet(HitByBulletEvent e) {
-	    // Go somewhere pseudo random
-	    Random rand_gen = new Random();
-	    double prand = rand_gen.nextDouble();
-	    // turn right 25% of time
-	    // just because
-	    if (prand <= 0.25) {
-			setTurnRightRadians(Math.PI / 2);
-	    } 
-	    prand *= 2;
-	    prand -= 1;
-	    prand *= 90;
-	    setBack(prand);
-	    
+		target_distance *= 1.2;
+		target_distance = Math.min(target_distance, 400);
 	}
+	
+   public void onBulletHit(BulletHitEvent event) {
+		target_distance *= 0.8;
+		target_distance = Math.max(target_distance, 100);
+   }
 	
 	public void onHitWall(HitWallEvent e) {
 
