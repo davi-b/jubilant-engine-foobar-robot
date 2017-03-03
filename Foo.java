@@ -159,10 +159,7 @@ public class Foo extends AdvancedRobot
 			adjust_gun = pi2npi(diff - e.getBearingRadians());
 		}
 		
-		
-		if (Math.abs(adjust_gun) > 0.01) {
-			turnGunLeftRadians(adjust_gun);
-		}
+		setTurnGunLeftRadians(adjust_gun);
 
 		if (getGunHeat() == 0 && pe.getHitPrediction() == true) {
 			fire(fire_power);
@@ -176,12 +173,12 @@ public class Foo extends AdvancedRobot
 	    // turn right 25% of time
 	    // just because
 	    if (prand <= 0.25) {
-		turnRight(90);
+			setTurnRightRadians(Math.PI / 2);
 	    } 
 	    prand *= 2;
 	    prand -= 1;
 	    prand *= 90;
-	    back(prand);
+	    setBack(prand);
 	    
 	}
 	
