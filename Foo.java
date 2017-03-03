@@ -78,11 +78,19 @@ public class Foo extends Robot
 			hitPrediction = x > 0 && y > 0 && x < robot.getBattleFieldWidth() && y < getBattleFieldHeight();
 			hitPrediction &= e.getVelocity() == 8;
 			
+			double error;
 			//If the target can't run from the bullet we fire.
-			double error = dt * 8;
+			error = dt * 8;
 			if (error < robot.getWidth() || error < robot.getHeight()) {
 				hitPrediction = true;
 			}
+
+			angle = Math.abs(Math.toRadians(getBearing() - e.getBearing())) / 2;
+			error = 2*e.getDistance()*Math.sin(angle);
+			if (error < robot.getWidth() || error < robot.getHeight()) {
+				hitPrediction = true;
+			}
+
 			out.println("error:" + error);
 		}
 	}
