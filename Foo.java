@@ -135,7 +135,7 @@ public class Foo extends AdvancedRobot
 				
 		if (target == null) {
 			target = new Target();
-			target.name = e.getName();
+			target.name = e.getName();	
 		}
 		
 		if (e.getName() != target.name)
@@ -150,7 +150,7 @@ public class Foo extends AdvancedRobot
 		//Tracking functions
 		double dist_adjust, angle;
 		//This adjust is between 0 and 90 degrees to get close the target
-		dist_adjust = (Math.PI / 2) * (target.distance - 100) / getBattleFieldWidth();
+		dist_adjust = direction * (Math.PI / 2) * (target.distance - 100) / getBattleFieldWidth();
 		//This adjust make the direction be always orthogonal to the target
 		angle = pi2npi(Math.PI / 2 - e.getBearingRadians() - dist_adjust);
 		setTurnLeftRadians(angle);
