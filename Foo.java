@@ -105,7 +105,6 @@ public class Foo extends AdvancedRobot
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
 		setAdjustGunForRobotTurn(true);
-		ahead(10);
 		while(true) {
 			if (target == null) {
 				turnRadarLeftRadians(Math.PI / 2);
@@ -122,6 +121,9 @@ public class Foo extends AdvancedRobot
 			}
 		}
 	}
+	
+	double ortogonalAdjust = Math.PI / 2;
+	double direction = 1;
 
 	double pi2npi(double angle) {
 		return (angle + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
@@ -130,7 +132,7 @@ public class Foo extends AdvancedRobot
 	 * onScannedRobot: What to do when you see another robot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
-					
+				
 		if (target == null) {
 			target = new Target();
 			target.name = e.getName();
@@ -144,14 +146,23 @@ public class Foo extends AdvancedRobot
 
 		target.counter++;
 		target.distance = e.getDistance();
-		
-		setTurnLeftRadians(-pi2npi(e.getBearingRadians()));
-		setAhead(target.distance - 100);
+				
+		//Tracking functions
+		double dist_adjust, angle;
+		//This adjust is between 0 and 90 degrees to get close the target
+		dist_adjust = (Math.PI / 2) * (target.distance - 100) / getBattleFieldWidth();
+		//This adjust make the direction be always orthogonal to the target
+		angle = pi2npi(Math.PI / 2 - e.getBearingRadians() - dist_adjust);
+		setTurnLeftRadians(angle);
+		//Keep moving
+		setAhead(100 * direction);
 	
+		//Radar compensation
 		double diff_radar = getRadarHeadingRadians() - getHeadingRadians();
 		double adjust_radar = pi2npi(e.getBearingRadians() - diff_radar);
 		target.adjust = adjust_radar;
 		
+		//Gun adjust with prediction or not
 		double diff = getGunHeadingRadians() - getHeadingRadians();
 		double adjust_gun;
 		if (pe.getHitPrediction()) {
@@ -159,9 +170,9 @@ public class Foo extends AdvancedRobot
 		} else {
 			adjust_gun = pi2npi(diff - e.getBearingRadians());
 		}
-		
 		setTurnGunLeftRadians(adjust_gun);
 
+		//Fire if we are sure
 		if (getGunHeat() == 0 && pe.getHitPrediction() == true) {
 			fire(fire_power);
 		}
@@ -184,6 +195,7 @@ public class Foo extends AdvancedRobot
 	}
 	
 	public void onHitWall(HitWallEvent e) {
-		//back(20);
+		//ortogonalAdjust *= -1;
+		direction *= -1;
 	}	
 }
