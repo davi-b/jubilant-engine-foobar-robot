@@ -235,7 +235,7 @@ public class Foo extends AdvancedRobot
 		if (e.getName() != target.name)
 			return;
 
-		double fire_power = 1;
+		double fire_power = Math.max(Math.min(3 * (100 / e.getDistance()), 3), 1);
 		PredictRobotEvent pe = new PredictRobotEvent(e, this, fire_power);
 
 		target.counter++;
@@ -278,12 +278,7 @@ public class Foo extends AdvancedRobot
 
 		//Fire if we are sure
 		if (getGunHeat() == 0 && pe.getHitPrediction() == true) {
-		    // add more power
-		    if (target.distance <= 90) {
-			setFire(3.0);
-		    } else {
 			setFire(fire_power);
-		    }
 		}
 	}
 
