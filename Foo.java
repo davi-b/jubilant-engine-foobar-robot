@@ -144,10 +144,10 @@ public class Foo extends AdvancedRobot
 			prand = rand_gen.nextDouble();
 			if (prand < 0.05) {
 				direction *= -1;
-			} else if (prand < 0.01) {
-				adjustTargetDistance(1.3);
-			} else if (prand < 0.15) {
-				adjustTargetDistance(0.7);
+			} else if (prand < 0.075) {
+				adjustTargetDistance(1.1);
+			} else if (prand < 0.100) {
+				adjustTargetDistance(0.9);
 			}
 		}
 	}
