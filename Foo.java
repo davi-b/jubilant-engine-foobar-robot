@@ -142,12 +142,12 @@ public class Foo extends AdvancedRobot
 				}
 			}
 			prand = rand_gen.nextDouble();
-			if (prand < 0.05) {
+			if (prand < 0.15) {
 				direction *= -1;
-			} else if (prand < 0.075) {
-				adjustTargetDistance(1.1);
-			} else if (prand < 0.100) {
-				adjustTargetDistance(0.9);
+			} else if (prand < 0.20) {
+				adjustTargetDistance(1.3);
+			} else if (prand < 0.25) {
+				adjustTargetDistance(0.7);
 			}
 		}
 	}
@@ -235,7 +235,7 @@ public class Foo extends AdvancedRobot
 		if (e.getName() != target.name)
 			return;
 
-		double fire_power = Math.max(Math.min(3 * (100 / e.getDistance()), 3), 1);
+		double fire_power = Math.max(Math.min(6 * (100 / e.getDistance()), 3), 1);
 		PredictRobotEvent pe = new PredictRobotEvent(e, this, fire_power);
 
 		target.counter++;
