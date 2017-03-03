@@ -1,7 +1,7 @@
 package Bar;
 import robocode.*;
 import java.util.Random;
-//import java.awt.Color;
+import java.awt.Color;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
 
@@ -89,8 +89,6 @@ public class Foo extends AdvancedRobot
 			if (error < robot.getWidth() || error < robot.getHeight()) {
 				hitPrediction = true;
 			}
-
-			out.println("error:" + error);
 		}
 	}
 
@@ -103,8 +101,10 @@ public class Foo extends AdvancedRobot
 	Target target;
 	public void run() {
 
-		// setColors(Color.red,Color.blue,Color.green); // body,gun,radar
+		setColors(Color.red,Color.blue,Color.green);
 		setAdjustRadarForGunTurn(true);
+		setAdjustRadarForRobotTurn(true);
+		setAdjustGunForRobotTurn(true);
 		ahead(10);
 		while(true) {
 			if (target == null) {
@@ -141,16 +141,17 @@ public class Foo extends AdvancedRobot
 
 		double fire_power = 1;
 		PredictRobotEvent pe = new PredictRobotEvent(e, this, fire_power);
-					
+
 		target.counter++;
 		target.distance = e.getDistance();
+		
+		setTurnLeftRadians(-pi2npi(e.getBearingRadians()));
+		setAhead(target.distance - 100);
 	
 		double diff_radar = getRadarHeadingRadians() - getHeadingRadians();
 		double adjust_radar = pi2npi(e.getBearingRadians() - diff_radar);
 		target.adjust = adjust_radar;
 		
-		out.println(Math.toDegrees(adjust_radar));
-
 		double diff = getGunHeadingRadians() - getHeadingRadians();
 		double adjust_gun;
 		if (pe.getHitPrediction()) {
