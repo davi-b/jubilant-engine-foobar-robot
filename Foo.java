@@ -5,7 +5,7 @@ import java.util.Random;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
 
-public class Foo extends Robot
+public class Foo extends AdvancedRobot
 {
 	public class PredictRobotEvent {
 
@@ -39,7 +39,7 @@ public class Foo extends Robot
 		}
 		
 		private double x, y;
-		public PredictRobotEvent(ScannedRobotEvent e, Robot robot, double firepower) {
+		public PredictRobotEvent(ScannedRobotEvent e, AdvancedRobot robot, double firepower) {
 			double dxdt, dydt, angle;
 			double nx, ny, dt;
 			
