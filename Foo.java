@@ -1,5 +1,6 @@
 package Bar;
 import robocode.*;
+import java.util.Random;
 //import java.awt.Color;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
@@ -157,7 +158,14 @@ public class Foo extends Robot
 	}
 
 	public void onHitByBullet(HitByBulletEvent e) {
-		//back(10);
+	    // Go somewhere pseudo random
+	    Random rand_gen = new Random();
+	    double prand = rand_gen.nextDouble();
+	    prand *= 2;
+	    prand -= 1;
+	    prand *= 90;
+	    back(prand);
+	    
 	}
 	
 	public void onHitWall(HitWallEvent e) {
