@@ -116,7 +116,17 @@ public class Foo extends AdvancedRobot
 		setAdjustGunForRobotTurn(true);
 		while(true) {
 			if (target == null) {
+				double distance_until_border;
+
 				turnRadarLeftRadians(Math.PI / 2);
+
+				distance_until_border = getDistanceUntilBorder(getHeadingRadians(), direction);
+				if (distance_until_border < border_triger_direction) {
+					direction *= -1;
+					distance_until_border = getDistanceUntilBorder(getHeadingRadians(), direction);
+					setAhead(distance_until_border * direction);
+					out.println("Avoid hit the border.");
+				}
 			}else{
 				double aperture;
 				aperture = (5 * Math.PI / 180) * (getBattleFieldWidth() / target.distance);
@@ -224,7 +234,7 @@ public class Foo extends AdvancedRobot
 
 		//Fire if we are sure
 		if (getGunHeat() == 0 && pe.getHitPrediction() == true) {
-			fire(fire_power);
+			setFire(fire_power);
 		}
 	}
 
