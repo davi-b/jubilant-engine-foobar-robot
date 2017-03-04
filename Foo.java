@@ -97,6 +97,7 @@ public class Foo extends AdvancedRobot
 		int counter;
 		double adjust;
 		double distance;
+		double energy;
 	};
 	void adjustTargetDistance(double factor) {
 		double newtarget_distance = target_distance * factor;
@@ -229,11 +230,17 @@ public class Foo extends AdvancedRobot
 				
 		if (target == null) {
 			target = new Target();
-			target.name = e.getName();	
+			target.name = e.getName();
+			target.energy = e.getEnergy();
 		}
 		
 		if (e.getName() != target.name)
 			return;
+
+		if (target.energy != e.getEnergy()) {
+			target.energy = e.getEnergy();
+			//direction *= -1;
+		}
 
 		double fire_power = Math.max(Math.min(6 * (100 / e.getDistance()), 3), 1);
 		PredictRobotEvent pe = new PredictRobotEvent(e, this, fire_power);
@@ -283,11 +290,11 @@ public class Foo extends AdvancedRobot
 	}
 
 	public void onHitByBullet(HitByBulletEvent e) {
-		adjustTargetDistance(1.2);
+		adjustTargetDistance(Math.pow(1.2, e.getBullet().getPower()));
 	}
 	
-	public void onBulletHit(BulletHitEvent event) {
-		adjustTargetDistance(0.8);
+	public void onBulletHit(BulletHitEvent e) {
+		adjustTargetDistance(Math.pow(0.8, e.getBullet().getPower()));
 	}
 
 	public void onHitWall(HitWallEvent e) {	
